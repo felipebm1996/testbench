@@ -12,8 +12,6 @@ pwm = GPIO.PWM(17,50)
 class MotorConfiguration(object):
     def __init__(self):
         #self.motorPin = 12
-
-
         rospy.init_node('motor_angles_configuration', anonymous = True)
         self.motorPub = rospy.Publisher("/motor_angles", Float64, queue_size = 1, latch = False)
         self.angle =  Float64()
@@ -24,24 +22,38 @@ class MotorConfiguration(object):
         self.angle = 0.0
 
     def AngleToDuty(self, angle):
-        #duty = float (angle)/18.+2.
-        self.duty = (self.angle)/36.0+5.0
+        #self.duty = (self.angle)/18.+2.0
+        self.duty = (self.angle)/18.0+5.0
         #print self.duty
         return self.duty
 
     def Process(self):
         self.duty = self.AngleToDuty(self.angle)
-        pwm.start(5)
-        #time.sleep(3)
+        pwm.start(self.duty)
+        # self.angle = 0.0
+        # self.duty = self.AngleToDuty(self.angle)
+        # self.motorPub.publish(self.angle)
+        # pwm.ChangeDutyCycle(self.duty)
+        # time.sleep(1)
 
-        for self.angle in range(5,100,5):
+        for self.angle in range(0,120,5):
             self.motorPub.publish(self.angle)
             self.duty = self.AngleToDuty(self.angle)
-            print(self.duty)
+            #print(self.duty)
+            print(self.angle)
            #GPIO.output(12, True)
             pwm.ChangeDutyCycle(self.duty)
             time.sleep(1)
-          #print("Position: {}° -> Duty cycle : {}%".format(pos,duty))
+        for self.angle in range(120,0,5):
+            self.motorPub.publish(self.angle)
+            self.duty = self.AngleToDuty(self.angle)
+            #print(self.duty)
+            print(self.angle)   
+            print(self.angle)
+           #GPIO.output(12, True)
+            pwm.ChangeDutyCycle(self.duty)
+            time.sleep(1)
+        #print("Position: {}° -> Duty cycle : {}%".format(pos,duty))
         pwm.stop()
         GPIO.cleanup()
 
